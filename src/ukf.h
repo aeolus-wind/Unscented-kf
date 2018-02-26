@@ -66,6 +66,18 @@ public:
 
   ///* Sigma point spreading parameter
   double lambda_;
+  
+  double x_pred;
+  MatrixXd P_pred;
+
+  double w_0;
+  double w_other;
+
+  double previous_timestamp;
+
+
+  double NIS_Lidar;
+  double NIS_Radar;
 
 
   /**
@@ -102,6 +114,31 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+  void UpdateRadarCross(const MeasurementPackage  meas_package, const MatrixXd& Zsig, 
+						    const VectorXd& z_pred, const MatrixXd& S, MatrixXd& P,VectorXd& x_pred);
+
+  MatrixXd GenerateSigmaPoints(MatrixXd P);
+
+  MatrixXd GenerateAugmentedMatrix(MatrixXd P, MatrixXd Q);
+
+  void SigmaPointPrediction(const MatrixXd& Xsig, double delta_t);
+
+  VectorXd CTRVToPolar(const VectorXd& CTRV_Vector);
+
+  VectorXd PolarToCTRV(const VectorXd &PolarVector);
+
+  void PredictRadar(MatrixXd& Zsig, VectorXd& z_pred, const MatrixXd& R, MatrixXd& S);
+
+  void PredictLidar(MatrixXd& Zsig, VectorXd& z_pred, const MatrixXd& R, MatrixXd& S);
+
+  VectorXd CTRVToLaserMeasurement(const VectorXd& CTRV_Vector);
+
+  void UpdateLidarCross(const MeasurementPackage meas_package, const MatrixXd&  Zsig,
+	  const VectorXd& z_pred, const MatrixXd& S, MatrixXd& P, VectorXd& x_pred);
+
 };
+
+bool isEqual(double x, double y);
+
 
 #endif /* UKF_H */
