@@ -49,13 +49,7 @@ UKF::UKF() {
   std_radrd_ = 0.3;
   //DO NOT MODIFY measurement noise values above these are provided by the sensor manufacturer.
   
-  /**
-  TODO:
 
-  Complete the initialization. See ukf.h for other member properties.
-
-  Hint: one or more values initialized above might be wildly off... problably std_yawdd
-  */
   n_x_ = 5;
   n_aug_ = 7;
   lambda_ = 3.0 - n_aug_;
@@ -81,7 +75,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   Complete this function! Make sure you switch between lidar and radar
   measurements.
   */
-	cout << "Process measurement called" << endl;
+	
 	if (meas_package.timestamp_ <= 0.01)
 		return;
 	
@@ -139,7 +133,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 		double delta_t = (meas_package.timestamp_ - previous_timestamp) / 1000000.0;
 			Prediction(delta_t);
 			previous_timestamp = meas_package.timestamp_;
-			cout << "x_ is " << x_<<" after prediction "<< endl;
+			
 		if (meas_package.sensor_type_ == MeasurementPackage::LASER && use_laser_ ) {
 			cout << "laser update" << endl;
 			UpdateLidar(meas_package);
@@ -148,9 +142,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 			cout << "radar update" << endl;
 			UpdateRadar(meas_package);
 
-			cout << "P_ is " << P_ << " after radar update" << endl;
-
-			cout << "x_ is " << x_ << " after radara update" << endl;
+			
 		}
 	}
 	
@@ -202,12 +194,6 @@ VectorXd UKF::PolarToCTRV(const VectorXd &PolarVector) {
  * measurement and this one.
  */
 void UKF::Prediction(double delta_t) {
-  /**
-  TODO:
-
-  Complete this function! Estimate the object's location. Modify the state
-  vector, x_. Predict sigma points, the state, and the state covariance matrix.
-  */
 	
 	MatrixXd Q(2, 2);
 	Q << std_a_ * std_a_, 0,
@@ -218,8 +204,7 @@ void UKF::Prediction(double delta_t) {
 	
 	
 	SigmaPointPrediction(Xsig, delta_t);
-	cout << "XSigPred_ is " << Xsig_pred_ << endl;
-
+	
 
 	x_ = Xsig_pred_.col(0) * w_0;
 
@@ -289,14 +274,7 @@ void UKF::UpdateLidarCross(const MeasurementPackage meas_package, const MatrixXd
  * @param {MeasurementPackage} meas_package
  */
 void UKF::UpdateLidar(MeasurementPackage meas_package) {
-  /**
-  TODO:
 
-  Complete this function! Use lidar data to update the belief about the object's
-  position. Modify the state vector, x_, and covariance, P_.
-
-  You'll also need to calculate the lidar NIS.
-  */
 
   VectorXd z_pred;
   MatrixXd Zsig;
@@ -346,7 +324,7 @@ void UKF::PredictRadar(MatrixXd& Zsig, VectorXd& z_pred, const MatrixXd& R, Matr
 		z_pred += w_other* Zsig.col(i + 1);
 	}
 
-	cout << "z_pred is " << z_pred << " after update" << endl;
+
 	VectorXd res = Zsig.col(0) - z_pred;
 	res(1) = NormalizeBetweePiMinusPi(res(1));
 	S = w_0*res*res.transpose();
@@ -375,7 +353,7 @@ void UKF::UpdateRadarCross(const MeasurementPackage meas_package, const MatrixXd
 	VectorXd res = meas_package.raw_measurements_ - z_pred;
 	x_pred = x_pred + K*res;
 
-	cout << "x_pred is " << x_pred << endl;
+
 	P = P - K*S*K.transpose();
 
 	
@@ -385,14 +363,7 @@ void UKF::UpdateRadarCross(const MeasurementPackage meas_package, const MatrixXd
 }
 
 void UKF::UpdateRadar(MeasurementPackage meas_package) {
-  /**
-  TODO:
 
-  Complete this function! Use radar data to update the belief about the object's
-  position. Modify the state vector, x_, and covariance, P_.
-
-  You'll also need to calculate the radar NIS.
-  */
 
   VectorXd z_pred;
   MatrixXd Zsig;
@@ -415,13 +386,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
 	UpdateRadarCross(meas_package, Zsig, z_pred, S, P_, x_);
 	
-	/*
 	
-	TODO: Calculate Radar NIS
-
-	*/
-
-
 
 }
 
@@ -433,7 +398,6 @@ MatrixXd UKF::GenerateSigmaPoints(MatrixXd P) {
 	
 	MatrixXd ch = P.llt().matrixL();
 
-	cout << "ch is " << ch << endl;
 	MatrixXd Xsigma(7, 15);
 	
 	Xsigma.col(0) = x_aug;
@@ -447,7 +411,7 @@ MatrixXd UKF::GenerateSigmaPoints(MatrixXd P) {
 
 		
 	}
-	cout << "Xsigma is " << Xsigma << endl;
+
 	return Xsigma;
 	
 }
@@ -519,6 +483,7 @@ void UKF::SigmaPointPrediction(const MatrixXd& Xsig, double delta_t) {
 
 
 bool isEqual(double x, double y) {
+	//Taken from https://stackoverflow.com/questions/19837576/comparing-floating-point-number-to-zero
     double epsilon = 1e-6;
     return std::abs(x-y) <= std::abs(x)*epsilon;
 
