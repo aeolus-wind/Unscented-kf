@@ -140,5 +140,7 @@ public:
 
 bool isEqual(double x, double y);
 
+double NormalizeBetweePiMinusPi(double rad);
+
 
 #endif /* UKF_H */
